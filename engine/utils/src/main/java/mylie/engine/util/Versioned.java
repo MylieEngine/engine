@@ -11,7 +11,7 @@ import lombok.Getter;
  * @param <T> the type of the value held by the container
  */
 @Getter
-public class Versioned<T> {
+public final class Versioned<T> {
 	private T value;
 	private long version = 0;
 
@@ -73,7 +73,7 @@ public class Versioned<T> {
 	 * @param <T> the type of the value held by the referenced {@code Versioned} container
 	 */
 	@Getter
-	public static class Ref<T> {
+	public static final class Ref<T> {
 		@Getter(AccessLevel.NONE)
 		private final Versioned<T> versioned;
 		private T value;
