@@ -41,6 +41,6 @@ class VersionedTest {
 		assertDoesNotThrow(() -> versioned.value("test2", 1));
 		assertEquals("test2", versioned.value());
 		assertEquals(1, versioned.version());
-		assertThrows(AssertionError.class, () -> versioned.value("test3", 1));
+		assertThrows(IllegalArgumentException.class, () -> versioned.value("test3", 1));
 	}
 }
