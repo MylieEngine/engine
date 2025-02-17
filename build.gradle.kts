@@ -1,13 +1,15 @@
 plugins {
     alias(libs.plugins.spotless)
-    alias(libs.plugins.sonarqube)
     id("jacoco-report-aggregation")
+    alias(libs.plugins.sonarqube)
 }
 
 group = "com.github.mylie-project"
 version = "1.0-SNAPSHOT"
 
-
+repositories {
+    mavenCentral()
+}
 
 sonar {
     properties {
