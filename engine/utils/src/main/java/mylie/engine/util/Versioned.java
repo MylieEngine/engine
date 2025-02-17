@@ -27,9 +27,9 @@ public class Versioned<T> {
 		this.version++;
 	}
 
-    public Ref<T> ref() {
-        return new Ref<>(this);
-    }
+	public Ref<T> ref() {
+		return new Ref<>(this);
+	}
 
 	@Getter
 	public static class Ref<T> {
