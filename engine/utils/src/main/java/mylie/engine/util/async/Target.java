@@ -19,18 +19,18 @@ public final class Target {
 
 	private static final ThreadLocal<Target> THREAD_LOCAL_TARGET = new ThreadLocal<>();
 	@Getter
-	private final String name;
+	private final String id;
 	private final boolean bindable;
 	private boolean bound;
 
 	/**
 	 * Constructor for creating a target with the specified name and bindable property.
 	 *
-	 * @param name     the name of the target, used for identification.
+	 * @param id     the name of the target, used for identification.
 	 * @param bindable whether this target can be bound.
 	 */
-	private Target(String name, boolean bindable) {
-		this.name = name;
+	private Target(String id, boolean bindable) {
+		this.id = id;
 		this.bindable = bindable;
 		bound = false;
 	}
@@ -38,10 +38,10 @@ public final class Target {
 	/**
 	 * Constructor for creating a bindable target with the specified name.
 	 *
-	 * @param name the name of the target, used for identification.
+	 * @param id the name of the target, used for identification.
 	 */
-	public Target(String name) {
-		this(name, true);
+	public Target(String id) {
+		this(id, true);
 	}
 
 	/**
