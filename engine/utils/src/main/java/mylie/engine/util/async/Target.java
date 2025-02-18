@@ -75,6 +75,17 @@ public final class Target {
 		THREAD_LOCAL_TARGET.remove();
 	}
 
+
+	/**
+	 * Returns a string representation of this target, which is its unique identifier.
+	 *
+	 * @return the unique identifier of this target as a {@code String}.
+	 */
+	@Override
+	public String toString() {
+		return id;
+	}
+
 	/**
 	 * Checks if the target is the current execution target for the thread.
 	 *
