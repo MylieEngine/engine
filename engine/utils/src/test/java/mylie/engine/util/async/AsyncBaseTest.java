@@ -113,10 +113,8 @@ class AsyncBaseTest {
 	void testExecuteException(Scheduler scheduler) {
 		setupScheduler(scheduler);
 		Result<Boolean> async = async(scheduler, Mode.DIRECT, Target.BACKGROUND, Cache.NO, 0, THROW_EXCEPTION);
-		assertThrows(RuntimeException.class,
-				() -> await(async));
+		assertThrows(RuntimeException.class, () -> await(async));
 		Result<Boolean> async1 = async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.NO, 0, THROW_EXCEPTION);
-		assertThrows(RuntimeException.class,
-				() -> await(async1));
+		assertThrows(RuntimeException.class, () -> await(async1));
 	}
 }
