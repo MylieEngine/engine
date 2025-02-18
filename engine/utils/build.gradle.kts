@@ -11,6 +11,7 @@ dependencies {
     testImplementation(libs.mockito)
     mockitoAgent(libs.mockito) { isTransitive = false }
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly(libs.logging.runtime)
 }
 
 tasks{
