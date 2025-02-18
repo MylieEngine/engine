@@ -10,7 +10,7 @@ class CachedValueTest {
 	void testConstructor() {
 		VersionedValue<Integer> a = new VersionedValue<>(1);
 		VersionedValue<Integer> b = new VersionedValue<>(2);
-		CachedValue<Integer> sum = new CachedValue<>(() -> a.value() + b.value(), a.ref(), b.ref());
+		CachedValue<Integer> sum = new CachedValue<>(() -> a.value() + b.value(), a, b);
 		assertEquals(3, sum.value());
 		assertEquals(0, sum.version());
 	}
@@ -26,7 +26,7 @@ class CachedValueTest {
 	void testChange() {
 		VersionedValue<Integer> a = new VersionedValue<>(1);
 		VersionedValue<Integer> b = new VersionedValue<>(2);
-		CachedValue<Integer> sum = new CachedValue<>(() -> a.value() + b.value(), a.ref(), b.ref());
+		CachedValue<Integer> sum = new CachedValue<>(() -> a.value() + b.value(), a, b);
 		a.value(2);
 		assertEquals(4, sum.value());
 		assertEquals(1, sum.version());
@@ -36,11 +36,12 @@ class CachedValueTest {
 	void testReference() {
 		VersionedValue<Integer> a = new VersionedValue<>(1);
 		VersionedValue<Integer> b = new VersionedValue<>(2);
-		CachedValue<Integer> sum = new CachedValue<>(() -> a.value() + b.value(), a.ref(), b.ref());
+		CachedValue<Integer> sum = new CachedValue<>(() -> a.value() + b.value(), a, b);
 		Versioned.Ref<Integer> ref = sum.ref();
 		assertEquals(3, ref.value(false));
 		a.value(2);
 		assertNotEquals(4, ref.value(false));
+		assertEquals(4, sum.value());
 		assertTrue(ref.requiresUpdate());
 		assertEquals(4, ref.value(true));
 	}
