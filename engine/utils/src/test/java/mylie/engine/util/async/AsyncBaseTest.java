@@ -112,9 +112,11 @@ class AsyncBaseTest {
 	@MethodSource("mylie.engine.util.async.AsyncTestSetup#schedulerProvider")
 	void testExecuteException(Scheduler scheduler) {
 		setupScheduler(scheduler);
+		Result<Boolean> async = async(scheduler, Mode.DIRECT, Target.BACKGROUND, Cache.NO, 0, THROW_EXCEPTION);
 		assertThrows(RuntimeException.class,
-				() -> await(async(scheduler, Mode.DIRECT, Target.BACKGROUND, Cache.NO, 0, THROW_EXCEPTION)));
+				() -> await(async));
+		Result<Boolean> async1 = async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.NO, 0, THROW_EXCEPTION);
 		assertThrows(RuntimeException.class,
-				() -> await(async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.NO, 0, THROW_EXCEPTION)));
+				() -> await(async1));
 	}
 }
