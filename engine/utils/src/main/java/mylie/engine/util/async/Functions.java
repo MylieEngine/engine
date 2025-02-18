@@ -4,6 +4,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 
 public class Functions {
+	private Functions() {
+	}
 	@Getter(AccessLevel.PACKAGE)
 	abstract static class Base {
 		private final String id;
