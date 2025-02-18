@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Async {
+	private Async() {
+	}
 	private static final Lock lock = new ReentrantLock();
 
 	public static <T extends Collection<Result<R>>, R> void await(T results) {
