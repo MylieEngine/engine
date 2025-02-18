@@ -1,12 +1,10 @@
 package mylie.engine.util.async;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @SuppressWarnings("StaticInitializerReferencesSubClass")
 public abstract class Cache {
@@ -28,26 +26,25 @@ public abstract class Cache {
 
 	abstract Cache createInstance();
 
-
 	static final class NullCache extends Cache {
 		@Override
 		void progress() {
-			//NoOp intentional
+			// NoOp intentional
 		}
 
 		@Override
 		void clear() {
-			//NoOp intentional
+			// NoOp intentional
 		}
 
 		@Override
 		void remove(Hash hash) {
-			//NoOp intentional
+			// NoOp intentional
 		}
 
 		@Override
 		<R> void result(Result<R> result) {
-			//NoOp intentional
+			// NoOp intentional
 		}
 
 		@Override
@@ -67,7 +64,7 @@ public abstract class Cache {
 	}
 
 	static final class InvalidateEachStep extends Cache {
-		private final Map<Hash,Result<?>> data=new HashMap<>();
+		private final Map<Hash, Result<?>> data = new HashMap<>();
 		@Override
 		void progress() {
 			Cache parentCache = parent();
@@ -92,7 +89,7 @@ public abstract class Cache {
 		@Override
 		<R> void result(Result<R> result) {
 			data.put(result.hash(), result);
-			if(parent()!=null){
+			if (parent() != null) {
 				parent().result(result);
 			}
 		}
@@ -101,8 +98,8 @@ public abstract class Cache {
 		@Override
 		<R> Result<R> result(Hash hash, long version) {
 			Result<R> result = (Result<R>) data.get(hash);
-			if (result ==null && parent()!=null){
-				result=parent().result(hash,version);
+			if (result == null && parent() != null) {
+				result = parent().result(hash, version);
 			}
 			return result;
 		}

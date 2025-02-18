@@ -23,11 +23,11 @@ public final class SingleThreadedScheduler extends Scheduler {
 	private static final class SingleThreadedExecutor implements Executor {
 		final Scheduler scheduler;
 
-        private SingleThreadedExecutor(Scheduler scheduler) {
-            this.scheduler = scheduler;
-        }
+		private SingleThreadedExecutor(Scheduler scheduler) {
+			this.scheduler = scheduler;
+		}
 
-        @Override
+		@Override
 		public <R> Result<R> executeFunction(Target target, Cache cache, long version, Hash hash,
 				Supplier<R> function) {
 			Result<R> result = new Result<>(hash, version);
@@ -43,7 +43,7 @@ public final class SingleThreadedScheduler extends Scheduler {
 
 		@Override
 		void progress() {
-			//Nothing to do
+			// Nothing to do
 		}
 
 		@Override

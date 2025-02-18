@@ -11,19 +11,18 @@ import lombok.extern.slf4j.Slf4j;
 public class Async {
 	private static final Lock lock = new ReentrantLock();
 
-	public static <T extends Collection<Result<R>>,R> void await(T results){
+	public static <T extends Collection<Result<R>>, R> void await(T results) {
 		for (Result<R> result : results) {
 			result.future().join();
 		}
 	}
 
-	public static <R> R await(Result<R> result){
+	public static <R> R await(Result<R> result) {
 		return result.future().join();
 	}
 
-
 	public static <R> Result<R> async(Scheduler scheduler, Mode mode, Target target, Cache cache, long version,
-									  Functions.Zero<R> function) {
+			Functions.Zero<R> function) {
 		Hash hash = new Hash(function);
 		lock();
 		Result<R> result = scheduler.cache(cache).result(hash, version);
@@ -36,12 +35,12 @@ public class Async {
 		return result;
 	}
 
-	public static <P0,R> Result<R> async(Scheduler scheduler, Mode mode, Target target, Cache cache, long version,
-										 Functions.One<P0,R> function, P0 p0) {
-		Hash hash = new Hash(function,p0);
+	public static <P0, R> Result<R> async(Scheduler scheduler, Mode mode, Target target, Cache cache, long version,
+			Functions.One<P0, R> function, P0 p0) {
+		Hash hash = new Hash(function, p0);
 		lock();
 		Result<R> result = scheduler.cache(cache).result(hash, version);
-		logAsyncCall(target, hash, result, function,p0);
+		logAsyncCall(target, hash, result, function, p0);
 		if (result == null) {
 			result = executeFunction(scheduler, mode, target, cache, version, hash, () -> function.execute(p0));
 		} else {
@@ -50,36 +49,33 @@ public class Async {
 		return result;
 	}
 
-	public static <P0,P1,R> Result<R> async(Scheduler scheduler, Mode mode, Target target, Cache cache, long version,
-										 Functions.Two<P0,P1,R> function, P0 p0,P1 p1) {
-		Hash hash = new Hash(function,p0,p1);
+	public static <P0, P1, R> Result<R> async(Scheduler scheduler, Mode mode, Target target, Cache cache, long version,
+			Functions.Two<P0, P1, R> function, P0 p0, P1 p1) {
+		Hash hash = new Hash(function, p0, p1);
 		lock();
 		Result<R> result = scheduler.cache(cache).result(hash, version);
-		logAsyncCall(target, hash, result, function,p0,p1);
+		logAsyncCall(target, hash, result, function, p0, p1);
 		if (result == null) {
-			result = executeFunction(scheduler, mode, target, cache, version, hash, () -> function.execute(p0,p1));
+			result = executeFunction(scheduler, mode, target, cache, version, hash, () -> function.execute(p0, p1));
 		} else {
 			unlock();
 		}
 		return result;
 	}
 
-	public static <P0,P1,P2,R> Result<R> async(Scheduler scheduler, Mode mode, Target target, Cache cache, long version,
-											Functions.Three<P0,P1,P2,R> function, P0 p0,P1 p1,P2 p2) {
-		Hash hash = new Hash(function,p0,p1,p2);
+	public static <P0, P1, P2, R> Result<R> async(Scheduler scheduler, Mode mode, Target target, Cache cache,
+			long version, Functions.Three<P0, P1, P2, R> function, P0 p0, P1 p1, P2 p2) {
+		Hash hash = new Hash(function, p0, p1, p2);
 		lock();
 		Result<R> result = scheduler.cache(cache).result(hash, version);
-		logAsyncCall(target, hash, result, function,p0,p1,p2);
+		logAsyncCall(target, hash, result, function, p0, p1, p2);
 		if (result == null) {
-			result = executeFunction(scheduler, mode, target, cache, version, hash, () -> function.execute(p0,p1,p2));
+			result = executeFunction(scheduler, mode, target, cache, version, hash, () -> function.execute(p0, p1, p2));
 		} else {
 			unlock();
 		}
 		return result;
 	}
-
-
-
 
 	private static <R> Result<R> executeFunction(Scheduler scheduler, Mode mode, Target target, Cache cache,
 			long version, Hash hash, Supplier<R> function) {
@@ -111,7 +107,7 @@ public class Async {
 			Object... args) {
 		if (log.isTraceEnabled()) {
 			log.trace("ASYNC CALL: {}<{}> Target: {}, Hash: {}, Cached:{}", function.id(), Arrays.toString(args),
-					target,hash, result != null);
+					target, hash, result != null);
 		}
 	}
 

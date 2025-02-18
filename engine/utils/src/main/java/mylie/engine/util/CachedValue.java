@@ -2,7 +2,6 @@ package mylie.engine.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Supplier;
 import lombok.Getter;
 
@@ -18,7 +17,7 @@ public final class CachedValue<T> implements Versioned<T> {
 			throw new IllegalArgumentException("Function cannot be null");
 		}
 		for (Versioned<?> dependency : dependencies) {
-			if(dependency!=null){
+			if (dependency != null) {
 				this.dependencies.add(dependency.ref());
 			}
 		}

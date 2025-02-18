@@ -75,7 +75,6 @@ public final class Target {
 		THREAD_LOCAL_TARGET.remove();
 	}
 
-
 	/**
 	 * Returns a string representation of this target, which is its unique identifier.
 	 *

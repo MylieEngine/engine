@@ -2,11 +2,9 @@ package mylie.engine.util.async;
 
 import java.util.HashMap;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +15,7 @@ public abstract class Scheduler {
 	@Getter(AccessLevel.PACKAGE)
 	private final Cache primaryCache;
 	private final Map<Target, Executor> targetExecutors = new HashMap<>();
-	private final Map<Cache,Cache> caches = new IdentityHashMap<>();
+	private final Map<Cache, Cache> caches = new IdentityHashMap<>();
 
 	protected Scheduler(boolean multiThreaded, Cache primaryCache) {
 		this.multiThreaded = multiThreaded;
@@ -31,7 +29,7 @@ public abstract class Scheduler {
 	}
 
 	void register(Target target, Executor executor) {
-		if(targetExecutors.containsKey(target)) {
+		if (targetExecutors.containsKey(target)) {
 			throw new IllegalStateException("Target already registered: " + target);
 		}
 		log.trace("Registering target {} with executor {}", target, executor);
@@ -41,7 +39,7 @@ public abstract class Scheduler {
 	public abstract void register(Target target, Consumer<Runnable> drain);
 
 	public void unregister(Target target) {
-		if(!targetExecutors.containsKey(target)) {
+		if (!targetExecutors.containsKey(target)) {
 			throw new IllegalStateException("Target not registered: " + target);
 		}
 		log.trace("Unregistering target {}", target);
@@ -49,19 +47,19 @@ public abstract class Scheduler {
 	}
 
 	public void register(Cache cache) {
-		if(caches.containsKey(cache)) {
+		if (caches.containsKey(cache)) {
 			throw new IllegalStateException("Cache already registered: " + cache);
 		}
 		log.trace("Registering cache {}", cache);
 		Cache cacheInstance = cache.createInstance();
 		cacheInstance.clear();
 		cacheInstance.parent(primaryCache);
-		caches.put(cache,cacheInstance);
+		caches.put(cache, cacheInstance);
 		cache.parent(primaryCache);
 	}
 
 	public void unregister(Cache cache) {
-		if(!caches.containsKey(cache)) {
+		if (!caches.containsKey(cache)) {
 			throw new IllegalStateException("Cache not registered: " + cache);
 		}
 		log.trace("Unregistering cache {}", cache);
@@ -71,7 +69,7 @@ public abstract class Scheduler {
 	}
 
 	public Cache cache(Cache cache) {
-		if(!caches.containsKey(cache)) {
+		if (!caches.containsKey(cache)) {
 			throw new IllegalStateException("Cache not registered: " + cache);
 		}
 		return caches.get(cache);
