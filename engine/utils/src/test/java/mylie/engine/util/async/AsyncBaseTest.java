@@ -21,23 +21,25 @@ class AsyncBaseTest {
 	@ParameterizedTest
 	@MethodSource("mylie.engine.util.async.AsyncTestSetup#schedulerProvider")
 	void testCacheNotRegistered(Scheduler scheduler) {
+		AtomicInteger atomicInteger = new AtomicInteger(0);
 		IllegalStateException exception = assertThrows(IllegalStateException.class, () -> async(scheduler, Mode.ASYNC,
-				Target.BACKGROUND, Cache.NO, 0, ATOMIC_INTEGER_INCREASE, new AtomicInteger(0)));
+				Target.BACKGROUND, Cache.NO, 0, ATOMIC_INTEGER_INCREASE, atomicInteger));
 		assertEquals("Cache not registered: " + Cache.NO, exception.getMessage());
 	}
 
 	@ParameterizedTest
 	@MethodSource("mylie.engine.util.async.AsyncTestSetup#schedulerProvider")
 	void testCacheRegisterUnregister(Scheduler scheduler) {
+		AtomicInteger atomicInteger = new AtomicInteger(0);
 		IllegalStateException exception = assertThrows(IllegalStateException.class, () -> async(scheduler, Mode.ASYNC,
-				Target.BACKGROUND, Cache.NO, 0, ATOMIC_INTEGER_INCREASE, new AtomicInteger(0)));
+				Target.BACKGROUND, Cache.NO, 0, ATOMIC_INTEGER_INCREASE, atomicInteger));
 		assertEquals("Cache not registered: " + Cache.NO, exception.getMessage());
 		scheduler.register(Cache.NO);
 		assertDoesNotThrow(() -> async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.NO, 0, ATOMIC_INTEGER_INCREASE,
-				new AtomicInteger(0)));
+				atomicInteger));
 		scheduler.unregister(Cache.NO);
 		exception = assertThrows(IllegalStateException.class, () -> async(scheduler, Mode.ASYNC, Target.BACKGROUND,
-				Cache.NO, 0, ATOMIC_INTEGER_INCREASE, new AtomicInteger(0)));
+				Cache.NO, 0, ATOMIC_INTEGER_INCREASE, atomicInteger));
 		assertEquals("Cache not registered: " + Cache.NO, exception.getMessage());
 	}
 
@@ -82,8 +84,9 @@ class AsyncBaseTest {
 	void testExecuteAsyncWithoutTarget(Scheduler scheduler) {
 		setupScheduler(scheduler);
 		Target target = new Target("TestTarget");
+		AtomicInteger atomicInteger = new AtomicInteger(0);
 		IllegalStateException exception = assertThrows(IllegalStateException.class,
-				() -> async(scheduler, Mode.ASYNC, target, Cache.NO, 0, ATOMIC_INTEGER_INCREASE, new AtomicInteger(0)));
+				() -> async(scheduler, Mode.ASYNC, target, Cache.NO, 0, ATOMIC_INTEGER_INCREASE, atomicInteger));
 		assertEquals("Target not registered: " + target, exception.getMessage());
 	}
 
