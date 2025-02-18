@@ -13,15 +13,16 @@ public final class CachedValue<T> implements Versioned<T> {
 	T value;
 	long version = 0;
 
-	public CachedValue(Supplier<T> function, Ref<?>... dependencies) {
+	public CachedValue(Supplier<T> function, Versioned<?>... dependencies) {
 		if (function == null) {
 			throw new IllegalArgumentException("Function cannot be null");
 		}
-		this.function = function;
-		for (Ref<?> dependency : dependencies) {
-			Objects.requireNonNull(dependency);
-			this.dependencies.add(dependency);
+		for (Versioned<?> dependency : dependencies) {
+			if(dependency!=null){
+				this.dependencies.add(dependency.ref());
+			}
 		}
+		this.function = function;
 		value = function.get();
 	}
 
