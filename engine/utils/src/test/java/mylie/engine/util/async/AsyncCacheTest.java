@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class AsyncCacheTest {
+class AsyncCacheTest {
 
 	private void setupScheduler(Scheduler scheduler) {
 		scheduler.register(Cache.NO);
