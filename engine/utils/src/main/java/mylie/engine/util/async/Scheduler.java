@@ -86,4 +86,24 @@ public abstract class Scheduler {
 	interface Executor {
 		<R> Result<R> executeFunction(Target target, Cache cache, long version, Hash hash, Supplier<R> function);
 	}
+
+	protected static final class SubmitExecutor implements Executor {
+		final Scheduler scheduler;
+		final Consumer<Runnable> drain;
+
+		public SubmitExecutor(Scheduler scheduler, Consumer<Runnable> drain) {
+			this.scheduler = scheduler;
+			this.drain = drain;
+		}
+
+		@Override
+		public <R> Result<R> executeFunction(Target target, Cache cache, long version, Hash hash,
+				Supplier<R> function) {
+			Result<R> result = new Result<>(hash, version, target, function);
+			scheduler.cache(cache).result(result);
+			Async.unlock();
+			drain.accept(() -> AsyncUtil.checkedExecute(function, result));
+			return result;
+		}
+	}
 }

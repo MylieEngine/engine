@@ -17,7 +17,11 @@ public final class SingleThreadedScheduler extends Scheduler {
 
 	@Override
 	public void register(Target target, Consumer<Runnable> drain) {
-		register(target, executor);
+		if (target.submitAlways()) {
+			register(target, new SubmitExecutor(this, drain));
+		} else {
+			register(target, executor);
+		}
 	}
 
 	private static final class SingleThreadedExecutor implements Executor {
@@ -30,7 +34,7 @@ public final class SingleThreadedScheduler extends Scheduler {
 		@Override
 		public <R> Result<R> executeFunction(Target target, Cache cache, long version, Hash hash,
 				Supplier<R> function) {
-			Result<R> result = new Result<>(hash, version);
+			Result<R> result = new Result<>(hash, version, target, function);
 			scheduler.cache(cache).result(result);
 			Async.unlock();
 			AsyncUtil.checkedExecute(function, result);
@@ -38,7 +42,7 @@ public final class SingleThreadedScheduler extends Scheduler {
 		}
 	}
 
-	private static final class SingleThreadedCache extends Cache {
+	static final class SingleThreadedCache extends Cache {
 		private final Map<Hash, Result<?>> data = new HashMap<>();
 
 		@Override
