@@ -6,75 +6,116 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Improved concurrency handling
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+# Global environment variables
+env:
+  GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: true
+  GRADLE_OPTS: "-Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4"
 
 jobs:
   build:
-
+    name: Build and Test
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      security-events: write
+      actions: read
+      checks: write
 
     steps:
-      - name: "Checkout Sources"
+      - name: Checkout Sources
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Create reports directory
+          fetch-depth: 0  # Full history for Sonar analysis
+
+      - name: Cache OpenGL dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/cache/apt/archives
+          key: ${{ runner.os }}-opengl-deps
+          restore-keys: |
+            ${{ runner.os }}-opengl-
+
+      - name: Setup OpenGL Environment
+        timeout-minutes: 5
         run: |
           mkdir -p build/reports
-      - name: Setup Opengl
-        run: |
           sudo apt-get update
           sudo apt-get install -y mesa-utils libgl1 libglx-mesa0 xvfb x11-utils
-      - name: "Setup environment variables"
-        run: |
           echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
           echo "MESA_LOADER_DRIVER_OVERRIDE=softpipe" >> $GITHUB_ENV
-      - name: Start xvfb
-        run: |
           sudo Xvfb :99 -ac -screen 0 1024x768x24 > build/reports/xvfb.log 2>&1 &
-          export DISPLAY=:99
           echo "DISPLAY=:99" >> $GITHUB_ENV
-          sleep 3  # Give xvfb some time to start
-      - name: Verify Mesa3D Installation
-        run: |
+          sleep 3
           glxinfo | grep "OpenGL"
+
       - name: Set up JDK 23
         uses: actions/setup-java@v4
         with:
           java-version: '23'
           distribution: 'oracle'
+          cache: 'gradle'
+          architecture: 'x64'
+
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
 
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+          key: ${{ runner.os }}-sonar-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-sonar-
 
-      - name: Build with Gradle Wrapper
+      - name: Build and Analyze
+        timeout-minutes: 20
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build sonar --info
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+        run: |
+          ./gradlew build sonar --scan --info
 
-  dependency-submission:
+      - name: Check Build Status
+        if: failure()
+        run: |
+          echo "Build failed! Check the logs for more details."
+          exit 1
 
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 23
-        uses: actions/setup-java@v4
+      - name: Upload Build Reports
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          java-version: '23'
-          distribution: 'temurin'
+          name: build-reports
+          path: |
+            build/reports/
+            */build/reports/
+            build/test-results/
+          retention-days: 7
 
-      # Generates and submits a dependency graph, enabling Dependabot Alerts for all project dependencies.
-      # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
-      - name: Generate and submit dependency graph
-        uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## Build Results :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "* Build Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "* Triggered by: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "* Workflow: ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
+          echo "* Branch: ${{ github.ref }}" >> $GITHUB_STEP_SUMMARY
+          echo "* Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
