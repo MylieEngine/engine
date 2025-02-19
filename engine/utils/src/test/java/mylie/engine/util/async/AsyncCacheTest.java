@@ -93,4 +93,17 @@ class AsyncCacheTest {
 		assertNotSame(result1, result3);
 		assertEquals(3, await(result3).intValue());
 	}
+
+	@ParameterizedTest
+	@MethodSource("mylie.engine.util.async.AsyncTestSetup#schedulerProvider")
+	void testOneFrameCacheZeroArgument(Scheduler scheduler) {
+		setupScheduler(scheduler);
+		Result<Boolean> result = async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.ONE_FRAME, 0, WAIT_100_MS);
+		await(result);
+		Result<Boolean> result1 = async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.ONE_FRAME, 0, WAIT_100_MS);
+		assertSame(result, result1);
+		scheduler.progress();
+		Result<Boolean> result2 = async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.ONE_FRAME, 0, WAIT_100_MS);
+		assertNotSame(result, result2);
+	}
 }

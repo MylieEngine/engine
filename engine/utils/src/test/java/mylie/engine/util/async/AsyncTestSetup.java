@@ -1,6 +1,7 @@
 package mylie.engine.util.async;
 
 import java.util.Collection;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -8,7 +9,8 @@ class AsyncTestSetup {
 	private AsyncTestSetup() {
 	}
 	static Stream<Scheduler> schedulerProvider() {
-		return Stream.of(new SingleThreadedScheduler());
+		return Stream.of(new SingleThreadedScheduler(),
+				new MultiThreadedScheduler.ExecutorBased(ForkJoinPool.commonPool()));
 	}
 
 	static final Functions.Zero<Boolean> THROW_EXCEPTION = new Functions.Zero<>("ThrowException") {

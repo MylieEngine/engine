@@ -117,4 +117,24 @@ class AsyncBaseTest {
 		Result<Boolean> async1 = async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.NO, 0, THROW_EXCEPTION);
 		assertThrows(RuntimeException.class, () -> await(async1));
 	}
+
+	@ParameterizedTest
+	@MethodSource("mylie.engine.util.async.AsyncTestSetup#schedulerProvider")
+	void testSubmitAlways(Scheduler scheduler) {
+		setupScheduler(scheduler);
+		Target target = new Target("TestTarget", true);
+		AtomicInteger atomicInteger = new AtomicInteger(0);
+		Queue<Runnable> drain = new LinkedList<>();
+		assertDoesNotThrow(() -> scheduler.register(target, drain::add));
+		Result<Boolean> result = async(scheduler, Mode.ASYNC, target, Cache.NO, 0, ATOMIC_INTEGER_INCREASE,
+				atomicInteger);
+		assertEquals(1, drain.size());
+		assertFalse(result.future.isDone());
+		assertEquals(0, atomicInteger.get());
+		Runnable poll = drain.poll();
+		assertNotNull(poll);
+		poll.run();
+		assertTrue(result.future.isDone());
+		assertEquals(1, atomicInteger.get());
+	}
 }
