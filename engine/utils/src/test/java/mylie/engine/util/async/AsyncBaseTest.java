@@ -1,14 +1,15 @@
 package mylie.engine.util.async;
 
 import static mylie.engine.util.async.Async.*;
-import static mylie.engine.util.async.AsyncTestSetup.ATOMIC_INTEGER_INCREASE;
-import static mylie.engine.util.async.AsyncTestSetup.THROW_EXCEPTION;
+import static mylie.engine.util.async.AsyncTestSetup.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -77,6 +78,7 @@ class AsyncBaseTest {
 		IllegalStateException illegalStateException1 = assertThrows(IllegalStateException.class,
 				() -> scheduler.unregister(target));
 		assertEquals("Target not registered: " + target, illegalStateException1.getMessage());
+		assertEquals(0, drain.size());
 	}
 
 	@ParameterizedTest
@@ -136,5 +138,23 @@ class AsyncBaseTest {
 		poll.run();
 		assertTrue(result.future.isDone());
 		assertEquals(1, atomicInteger.get());
+	}
+
+	@ParameterizedTest
+	@MethodSource("mylie.engine.util.async.AsyncTestSetup#schedulerProvider")
+	void testCustomHashObject(Scheduler scheduler) {
+		setupScheduler(scheduler);
+		AsyncTestSetup.CustomHashObject customHashObject = new AsyncTestSetup.CustomHashObject(1);
+		Result<Boolean> result = async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.NO, 0, CUSTOM_HASH_OBJECT,
+				customHashObject);
+		assertTrue(result.result());
+	}
+
+	@SuppressWarnings({"SimplifiableAssertion", "EqualsBetweenInconvertibleTypes"})
+	@Test
+	void testHashEquals() {
+		Hash hash = new Hash(THROW_EXCEPTION);
+		Assertions.assertNotEquals(new Hash(WAIT_100_MS), hash);
+		Assertions.assertFalse(hash.equals("adsf"));
 	}
 }
