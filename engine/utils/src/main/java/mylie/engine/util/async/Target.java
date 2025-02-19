@@ -9,39 +9,53 @@ import lombok.Setter;
  * to a thread-local storage for managing the current execution target. Targets
  * can be either bindable or non-bindable.
  */
-@Getter(AccessLevel.PRIVATE)
+@Getter(AccessLevel.PACKAGE)
 @Setter(AccessLevel.PRIVATE)
 public final class Target {
 	/**
 	 * A predefined non-bindable target representing background execution.
 	 */
-	public static final Target BACKGROUND = new Target("Background", false);
+	public static final Target BACKGROUND = new Target("Background", false, false);
 
 	private static final ThreadLocal<Target> THREAD_LOCAL_TARGET = new ThreadLocal<>();
 	@Getter
 	private final String id;
 	private final boolean bindable;
+	private final boolean submitAlways;
 	private boolean bound;
 
 	/**
-	 * Constructor for creating a target with the specified name and bindable property.
+	 * Constructs a new {@code Target} instance with the specified identifier.
 	 *
-	 * @param id     the name of the target, used for identification.
-	 * @param bindable whether this target can be bound.
+	 * @param id the unique identifier for this target, used for identification and retrieval.
 	 */
-	private Target(String id, boolean bindable) {
+	public Target(String id) {
+		this(id, false, true);
+	}
+
+	/**
+	 * Constructs a new {@code Target} instance with the specified identifier, bindable status,
+	 * and submit-always configuration.
+	 *
+	 * @param id           the unique identifier for this target, used for identification and retrieval
+	 * @param submitAlways a flag indicating whether this target should always submit tasks.
+	 * @param bindable     a flag indicating whether this target can be bound to a thread.
+	 */
+	private Target(String id, boolean submitAlways, boolean bindable) {
 		this.id = id;
 		this.bindable = bindable;
+		this.submitAlways = submitAlways;
 		bound = false;
 	}
 
 	/**
-	 * Constructor for creating a bindable target with the specified name.
+	 * Constructs a {@code Target} instance with a specified identifier and submit-always configuration.
 	 *
-	 * @param id the name of the target, used for identification.
+	 * @param id           the unique identifier for this target, used for identification and retrieval.
+	 * @param submitAlways a flag indicating whether this target should always submit tasks.
 	 */
-	public Target(String id) {
-		this(id, true);
+	public Target(String id, boolean submitAlways) {
+		this(id, submitAlways, true);
 	}
 
 	/**
