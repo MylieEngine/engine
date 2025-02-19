@@ -87,7 +87,7 @@ public abstract class Scheduler {
 		<R> Result<R> executeFunction(Target target, Cache cache, long version, Hash hash, Supplier<R> function);
 	}
 
-	protected static final class SubmitExecutor implements Executor {
+	static final class SubmitExecutor implements Executor {
 		final Scheduler scheduler;
 		final Consumer<Runnable> drain;
 
