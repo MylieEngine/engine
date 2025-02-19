@@ -14,7 +14,7 @@ public class Functions {
 		}
 	}
 	public abstract static class Zero<R> extends Base {
-		public Zero(String id) {
+		protected Zero(String id) {
 			super(id);
 		}
 
@@ -22,7 +22,7 @@ public class Functions {
 	}
 
 	public abstract static class One<P0, R> extends Base {
-		public One(String id) {
+		protected One(String id) {
 			super(id);
 		}
 
@@ -30,14 +30,14 @@ public class Functions {
 	}
 
 	public abstract static class Two<P0, P1, R> extends Base {
-		public Two(String id) {
+		protected Two(String id) {
 			super(id);
 		}
 		protected abstract R execute(P0 param0, P1 param1);
 	}
 
 	public abstract static class Three<P0, P1, P2, R> extends Base {
-		public Three(String id) {
+		protected Three(String id) {
 			super(id);
 		}
 		protected abstract R execute(P0 param0, P1 param1, P2 param2);
