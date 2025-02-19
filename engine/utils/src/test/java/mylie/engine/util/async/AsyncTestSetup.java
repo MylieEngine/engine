@@ -1,16 +1,23 @@
 package mylie.engine.util.async;
 
 import java.util.Collection;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Assertions;
 
 class AsyncTestSetup {
 	private AsyncTestSetup() {
 	}
+
 	static Stream<Scheduler> schedulerProvider() {
 		return Stream.of(new SingleThreadedScheduler(),
-				new MultiThreadedScheduler.ExecutorBased(ForkJoinPool.commonPool()));
+				new MultiThreadedScheduler.ExecutorBased(ForkJoinPool.commonPool()),
+				new MultiThreadedScheduler.ExecutorBased(Executors.newVirtualThreadPerTaskExecutor()),
+				new MultiThreadedScheduler.ExecutorBased(Executors.newCachedThreadPool()),
+				new MultiThreadedScheduler.ExecutorBased(Executors.newSingleThreadExecutor()),
+				new MultiThreadedScheduler.ExecutorBased(Executors.newFixedThreadPool(4)));
 	}
 
 	static final Functions.Zero<Boolean> THROW_EXCEPTION = new Functions.Zero<>("ThrowException") {
@@ -26,7 +33,7 @@ class AsyncTestSetup {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				throw new IllegalStateException(e);
 			}
 			return true;
 		}
@@ -63,5 +70,29 @@ class AsyncTestSetup {
 			return param0 * param1 + param2;
 		}
 	};
+
+	static final Functions.One<CustomHashObject, Boolean> CUSTOM_HASH_OBJECT = new Functions.One<>("CustomHashObject") {
+		@Override
+		protected Boolean execute(CustomHashObject param0) {
+			Assertions.assertEquals(param0.value, param0.hashCode());
+			return param0.value == param0.hashCode();
+		}
+	};
+
+	static class CustomHashObject implements Hash.Custom {
+		private final int value;
+		public CustomHashObject(int value) {
+			this.value = value;
+		}
+		@Override
+		public int hashCode() {
+			return value;
+		}
+
+		@Override
+		public int value() {
+			return value;
+		}
+	}
 
 }
