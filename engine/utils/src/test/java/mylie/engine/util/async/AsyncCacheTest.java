@@ -102,6 +102,7 @@ class AsyncCacheTest {
 		await(result);
 		Result<Boolean> result1 = async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.ONE_FRAME, 0, WAIT_100_MS);
 		assertSame(result, result1);
+		assertEquals(result.hash().toString(), result1.hash().toString());
 		scheduler.progress();
 		Result<Boolean> result2 = async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.ONE_FRAME, 0, WAIT_100_MS);
 		assertNotSame(result, result2);
