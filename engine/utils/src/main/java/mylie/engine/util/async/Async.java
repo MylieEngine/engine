@@ -15,12 +15,12 @@ public class Async {
 
 	public static <T extends Collection<Result<R>>, R> void await(T results) {
 		for (Result<R> result : results) {
-			result.future().join();
+			result.result();
 		}
 	}
 
 	public static <R> R await(Result<R> result) {
-		return result.future().join();
+		return result.result();
 	}
 
 	public static <R> Result<R> async(Scheduler scheduler, Mode mode, Target target, Cache cache, long version,
@@ -83,7 +83,7 @@ public class Async {
 			long version, Hash hash, Supplier<R> function) {
 		Result<R> result;
 		if (executeDirectly(mode, target)) {
-			result = new Result<>(hash, version);
+			result = new Result<>(hash, version, target, function);
 			cache.result(result);
 			unlock();
 			try {
@@ -97,9 +97,9 @@ public class Async {
 		return result;
 	}
 
-	private static boolean executeDirectly(Mode mode, Target target) {
+	static boolean executeDirectly(Mode mode, Target target) {
 		if (mode == Mode.ASYNC) {
-			return false;
+			return target.isCurrent();
 		} else {
 			return Target.BACKGROUND == target || target.isCurrent();
 		}
@@ -107,10 +107,8 @@ public class Async {
 
 	private static void logAsyncCall(Target target, Hash hash, Result<?> result, Functions.Base function,
 			Object... args) {
-		if (log.isTraceEnabled()) {
-			log.trace("ASYNC CALL: {}<{}> Target: {}, Hash: {}, Cached:{}", function.id(), Arrays.toString(args),
-					target, hash, result != null);
-		}
+		log.trace("ASYNC CALL: {}<{}> Target: {}, Hash: {}, Cached:{}", function.id(), Arrays.toString(args), target,
+				hash, result != null);
 	}
 
 	/**
