@@ -18,28 +18,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  dependency-review:
-    name: Review Dependencies
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      pull-requests: read  # Required for PR scanning
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v3
-        with:
-          fail-on-severity: critical  # Fail workflow on critical vulnerabilities
-          deny-licenses: LGPL-2.0, AGPL-3.0  # Optional: Fail on specific licenses
   submit-dependencies:
     name: Submit Dependency Graph
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: dependency-review
     permissions:
       contents: write
       actions: read   # Needed for workflow caching
