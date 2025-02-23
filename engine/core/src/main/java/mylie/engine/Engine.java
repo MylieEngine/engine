@@ -1,27 +1,105 @@
 package mylie.engine;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
 import lombok.Getter;
+import mylie.engine.util.Blocking;
+import mylie.engine.util.async.*;
 
 @Getter(AccessLevel.PACKAGE)
 public class Engine {
+	public static final Target TARGET = new Target("Engine");
 	private static Engine engine;
 	private ShutdownReason shutdownReason;
 	private final EngineConfiguration engineConfiguration;
+	private final BlockingQueue<Runnable> asyncQueue = new LinkedBlockingQueue<>();
+	private Scheduler scheduler;
+	private boolean updateLoopRunning = false;
 	private Engine(EngineConfiguration configuration) {
+		Thread.currentThread().setName("Engine");
 		this.engineConfiguration = configuration;
+		initScheduler();
 	}
 
 	ShutdownReason onStart() {
+		if (engineConfiguration.platformCallbacks() != null) {
+			engineConfiguration.platformCallbacks().onInitialize();
+		}
+		if (engineConfiguration.engineMode() == EngineConfiguration.EngineMode.MANAGED) {
+			if (scheduler instanceof SingleThreadedScheduler) {
+				runSingleThreaded();
+			} else {
+				runMultiThreaded();
+			}
+			if (engineConfiguration.platformCallbacks() != null) {
+				engineConfiguration.platformCallbacks().onShutdown();
+			}
+		}
 		return shutdownReason;
 	}
 
 	ShutdownReason onUpdate() {
+		executeQueueTasks(false);
+		runUpdateLoop();
+		if (shutdownReason != null && engineConfiguration.platformCallbacks() != null) {
+			engineConfiguration.platformCallbacks().onShutdown();
+		}
 		return shutdownReason;
 	}
 
 	void onShutdown(ShutdownReason reason) {
 		shutdownReason = reason;
+	}
+
+	private void runUpdateLoop() {
+		if (shutdownReason == null && engineConfiguration.platformCallbacks() != null) {
+			engineConfiguration.platformCallbacks().onUpdate();
+		}
+	}
+
+	private void runMultiThreaded() {
+		updateLoopRunning = true;
+		Thread updateThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (shutdownReason == null) {
+					runUpdateLoop();
+				}
+				runUpdateLoop();
+				updateLoopRunning = false;
+			}
+		}, "Update Thread");
+		updateThread.start();
+		executeQueueTasks(true);
+	}
+
+	private void runSingleThreaded() {
+		while (shutdownReason == null) {
+			runUpdateLoop();
+		}
+		runUpdateLoop();
+	}
+
+	private void executeQueueTasks(boolean blocking) {
+		if (blocking) {
+			while (shutdownReason == null || updateLoopRunning) {
+				Blocking.poll(asyncQueue, 10, TimeUnit.MILLISECONDS);
+			}
+		} else {
+			Runnable task;
+			while ((task = asyncQueue.poll()) != null) {
+				task.run();
+			}
+		}
+	}
+
+	private void initScheduler() {
+		scheduler = engineConfiguration.schedulerSettings().getInstance();
+		scheduler.register(Cache.NO);
+		scheduler.register(Cache.ONE_FRAME);
+		scheduler.register(TARGET, asyncQueue::add);
 	}
 
 	public static ShutdownReason start(EngineConfiguration config) {
@@ -68,14 +146,16 @@ public class Engine {
 	public static ShutdownReason update() {
 		checkEngineState(true);
 		ShutdownReason shutdownReason = engine.onUpdate();
+		if (shutdownReason == null) {
+			// update ok
+			return null;
+		}
 		if (engine.engineConfiguration.restartBehavior() == EngineConfiguration.RestartBehavior.MANAGED
 				&& shutdownReason.reason() == ShutdownReason.Reason.RESTART) {
 			engine = new Engine(engine.engineConfiguration());
 			return engine.onStart();
 		}
-		if (shutdownReason != null) {
-			engine = null;
-		}
+		engine = null;
 		return shutdownReason;
 	}
 
