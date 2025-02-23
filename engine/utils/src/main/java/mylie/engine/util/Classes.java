@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Classes {
+	private Classes() {}
 	public static <T> T newInstance(Class<T> clazz) {
 		try {
 			return clazz.getDeclaredConstructor().newInstance();

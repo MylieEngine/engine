@@ -1,6 +1,8 @@
 name: Engine-Test
 
 on:
+  push:
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -16,7 +18,7 @@ env:
 
 jobs:
   build:
-    name: Build and Test
+    name: Build, Test, Submit coverage
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -66,12 +68,21 @@ jobs:
         with:
           gradle-version: wrapper
 
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-sonar-
+
       - name: Build and Analyze
         timeout-minutes: 20
         env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
         run: |
-          ./gradlew build test
+          ./gradlew build sonar --scan --info
 
       - name: Check Build Status
         if: failure()
