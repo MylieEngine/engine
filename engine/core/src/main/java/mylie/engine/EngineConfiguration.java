@@ -3,6 +3,7 @@ package mylie.engine;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import mylie.engine.util.async.*;
 
 @Setter
 @Getter(AccessLevel.PACKAGE)
@@ -18,4 +19,5 @@ public class EngineConfiguration {
 	private Feature.Level featureLevel = new Feature.Level(false, Feature.Status.STABLE);
 	@Setter(AccessLevel.PACKAGE)
 	private Platform.Callback platformCallbacks;
+	private SchedulerSettings schedulerSettings = SchedulerSettings.forkJoin();
 }
