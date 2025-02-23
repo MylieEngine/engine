@@ -1,4 +1,4 @@
-name: Engine-Test
+name: Engine-Test-Coverage
 
 on:
   push:

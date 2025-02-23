@@ -10,8 +10,8 @@ dependencies {
     testImplementation(libs.mockito)
     @Suppress("UnstableApiUsage")
     mockitoAgent(libs.mockito) { isTransitive = false }
-    testImplementation(platform("org.junit:junit-bom:5.12.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.bundles.junit)
     testRuntimeOnly(libs.logging.runtime)
 }
 
