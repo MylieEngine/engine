@@ -4,10 +4,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class MultiThreadedScheduler extends Scheduler implements Scheduler.Executor {
+public abstract class MultiThreadedScheduler extends Scheduler {
 	protected MultiThreadedScheduler() {
 		super(true, new SingleThreadedScheduler.SingleThreadedCache().createInstance());
-		register(Target.BACKGROUND, this);
 	}
 
 	@Override
@@ -15,16 +14,23 @@ public abstract class MultiThreadedScheduler extends Scheduler implements Schedu
 		register(target, new SubmitExecutor(this, drain));
 	}
 
-	static class ExecutorBased extends MultiThreadedScheduler {
+	public static class ExecutorBased extends MultiThreadedScheduler {
 		final ExecutorService executor;
-
-		ExecutorBased(ExecutorService executor) {
+		final Executor executorMapper;
+		public ExecutorBased(ExecutorService executor) {
 			this.executor = executor;
+			ExecutorBased self = this;
+			executorMapper = new Executor() {
+				@Override
+				<R> Result<R> executeFunction(Target target, Cache cache, long version, Hash hash,
+						Supplier<R> function) {
+					return self.executeFunction(target, cache, version, hash, function);
+				}
+			};
+			register(Target.BACKGROUND, executorMapper);
 		}
 
-		@Override
-		public <R> Result<R> executeFunction(Target target, Cache cache, long version, Hash hash,
-				Supplier<R> function) {
+		<R> Result<R> executeFunction(Target target, Cache cache, long version, Hash hash, Supplier<R> function) {
 			Result<R> result = new Result<>(hash, version, target, function);
 			cache(cache).result(result);
 			Async.unlock();

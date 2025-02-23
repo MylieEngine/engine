@@ -24,7 +24,7 @@ public final class SingleThreadedScheduler extends Scheduler {
 		}
 	}
 
-	private static final class SingleThreadedExecutor implements Executor {
+	private static final class SingleThreadedExecutor extends Executor {
 		final Scheduler scheduler;
 
 		private SingleThreadedExecutor(Scheduler scheduler) {

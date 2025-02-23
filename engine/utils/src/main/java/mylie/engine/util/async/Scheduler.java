@@ -47,10 +47,10 @@ public abstract class Scheduler {
 	}
 
 	public void register(Cache cache) {
+		log.trace("Registering cache {}", cache);
 		if (caches.containsKey(cache)) {
 			throw new IllegalStateException("Cache already registered: " + cache);
 		}
-		log.trace("Registering cache {}", cache);
 		Cache cacheInstance = cache.createInstance();
 		cacheInstance.clear();
 		cacheInstance.parent(primaryCache);
@@ -83,11 +83,12 @@ public abstract class Scheduler {
 		return executor.executeFunction(target, cache, version, hash, function);
 	}
 
-	interface Executor {
-		<R> Result<R> executeFunction(Target target, Cache cache, long version, Hash hash, Supplier<R> function);
+	static abstract class Executor {
+		abstract <R> Result<R> executeFunction(Target target, Cache cache, long version, Hash hash,
+				Supplier<R> function);
 	}
 
-	static final class SubmitExecutor implements Executor {
+	static final class SubmitExecutor extends Executor {
 		final Scheduler scheduler;
 		final Consumer<Runnable> drain;
 
@@ -97,8 +98,7 @@ public abstract class Scheduler {
 		}
 
 		@Override
-		public <R> Result<R> executeFunction(Target target, Cache cache, long version, Hash hash,
-				Supplier<R> function) {
+		<R> Result<R> executeFunction(Target target, Cache cache, long version, Hash hash, Supplier<R> function) {
 			Result<R> result = new Result<>(hash, version, target, function);
 			scheduler.cache(cache).result(result);
 			Async.unlock();
