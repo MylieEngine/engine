@@ -3,8 +3,6 @@ name: Engine-Test
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 # Improved concurrency handling
 concurrency:
