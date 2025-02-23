@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class Classes {
+public final class Classes {
 	private Classes() {
 	}
 	public static <T> T newInstance(Class<T> clazz) {
