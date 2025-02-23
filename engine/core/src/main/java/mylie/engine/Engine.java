@@ -61,15 +61,12 @@ public class Engine {
 
 	private void runMultiThreaded() {
 		updateLoopRunning = true;
-		Thread updateThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (shutdownReason == null) {
-					runUpdateLoop();
-				}
+		Thread updateThread = new Thread(() -> {
+			while (shutdownReason == null) {
 				runUpdateLoop();
-				updateLoopRunning = false;
 			}
+			runUpdateLoop();
+			updateLoopRunning = false;
 		}, "Update Thread");
 		updateThread.start();
 		executeQueueTasks(true);
