@@ -2,7 +2,11 @@ package mylie.engine;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class EngineTest {
 
@@ -25,6 +29,7 @@ class EngineTest {
 		assertTrue(Engine.running());
 		Engine.shutdown("OK");
 		shutdownReason = Engine.update();
+		assertNotNull(shutdownReason);
 		assertEquals("OK", shutdownReason.message());
 		assertFalse(Engine.running());
 	}
@@ -40,6 +45,7 @@ class EngineTest {
 		assertEquals("Engine already started", illegalStateException.getMessage());
 		Engine.shutdown("OK");
 		Engine.ShutdownReason update = Engine.update();
+		assertNotNull(update);
 		assertEquals("OK", update.message());
 	}
 
@@ -58,7 +64,83 @@ class EngineTest {
 		assertNull(start);
 		Engine.shutdown(new RuntimeException("Exception"));
 		Engine.ShutdownReason update = Engine.update();
+		assertNotNull(update);
 		assertEquals("Exception", update.message());
 		assertFalse(Engine.running());
+	}
+
+	static Stream<SchedulerSettings> schedulerProvider() {
+		return Stream.of(SchedulerSettings.singleThreaded(), SchedulerSettings.forkJoin());
+	}
+
+	@ParameterizedTest
+	@MethodSource("schedulerProvider")
+	void testEngineManagedMode(SchedulerSettings schedulerSettings) {
+		EngineConfiguration configuration = new EngineConfiguration();
+		configuration.schedulerSettings(schedulerSettings);
+		configuration.engineMode(EngineConfiguration.EngineMode.MANAGED);
+		AtomicInteger initCounter = new AtomicInteger(0);
+		AtomicInteger shutdownCounter = new AtomicInteger(0);
+		AtomicInteger updateCounter = new AtomicInteger(0);
+		configuration.platformCallbacks(new Platform.Callback() {
+			@Override
+			public void onInitialize() {
+				initCounter.incrementAndGet();
+			}
+
+			@Override
+			public void onUpdate() {
+				updateCounter.incrementAndGet();
+				if (updateCounter.get() == 10) {
+					Engine.shutdown("OK");
+				}
+			}
+
+			@Override
+			public void onShutdown() {
+				shutdownCounter.incrementAndGet();
+			}
+		});
+		Engine.start(configuration);
+		assertEquals(1, initCounter.get());
+		assertEquals(1, shutdownCounter.get());
+		assertEquals(10, updateCounter.get());
+	}
+
+	@ParameterizedTest
+	@MethodSource("schedulerProvider")
+	void testEngineManualMode(SchedulerSettings schedulerSettings) {
+		EngineConfiguration configuration = new EngineConfiguration();
+		configuration.schedulerSettings(schedulerSettings);
+		configuration.engineMode(EngineConfiguration.EngineMode.MANUAL);
+		AtomicInteger initCounter = new AtomicInteger(0);
+		AtomicInteger shutdownCounter = new AtomicInteger(0);
+		AtomicInteger updateCounter = new AtomicInteger(0);
+		configuration.platformCallbacks(new Platform.Callback() {
+			@Override
+			public void onInitialize() {
+				initCounter.incrementAndGet();
+			}
+
+			@Override
+			public void onUpdate() {
+				updateCounter.incrementAndGet();
+				if (updateCounter.get() == 10) {
+					Engine.shutdown("OK");
+				}
+			}
+
+			@Override
+			public void onShutdown() {
+				shutdownCounter.incrementAndGet();
+			}
+		});
+		Engine.ShutdownReason shutdownReason = Engine.start(configuration);
+		while (shutdownReason == null) {
+			shutdownReason = Engine.update();
+		}
+		assertEquals(1, initCounter.get());
+		assertEquals(1, shutdownCounter.get());
+		assertEquals(10, updateCounter.get());
 	}
 }
