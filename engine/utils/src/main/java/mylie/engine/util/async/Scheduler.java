@@ -83,7 +83,7 @@ public abstract class Scheduler {
 		return executor.executeFunction(target, cache, version, hash, function);
 	}
 
-	static abstract class Executor {
+	abstract static class Executor {
 		abstract <R> Result<R> executeFunction(Target target, Cache cache, long version, Hash hash,
 				Supplier<R> function);
 	}
