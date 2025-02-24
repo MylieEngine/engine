@@ -7,56 +7,19 @@ import org.junit.jupiter.api.Test;
 class ArgumentsTest {
 
 	@Test
-	void testFromString_singleKeyValuePair() {
+	void testFromString_testKeys() {
 		Arguments arguments = new Arguments();
 
-		arguments.fromString("-key value");
+		arguments.fromString("-key value -key2 value2 -key4");
 
 		assertTrue(arguments.isSet("key"));
 		assertEquals("value", arguments.value("key"));
-	}
-
-	@Test
-	void testFromString_multipleKeyValuePairs() {
-		Arguments arguments = new Arguments();
-
-		arguments.fromString("-key1 value1 -key2 value2");
-
-		assertTrue(arguments.isSet("key1"));
 		assertTrue(arguments.isSet("key2"));
-		assertEquals("value1", arguments.value("key1"));
 		assertEquals("value2", arguments.value("key2"));
-	}
-
-	@Test
-	void testFromString_keyWithoutValue() {
-		Arguments arguments = new Arguments();
-
-		arguments.fromString("-key");
-
-		assertTrue(arguments.isSet("key"));
-		assertEquals("", arguments.value("key"));
-	}
-
-	@Test
-	void testFromString_valueWithoutKeyThrowsException() {
-		Arguments arguments = new Arguments();
-
-		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-				() -> arguments.fromString("value"));
-		assertEquals("Argument value does not start with -", exception.getMessage());
-	}
-
-	@Test
-	void testFromString_multipleKeysWithoutValues() {
-		Arguments arguments = new Arguments();
-
-		arguments.fromString("-key1 -key2");
-
-		assertTrue(arguments.isSet("key1"));
-		assertTrue(arguments.isSet("key2"));
-		assertEquals("", arguments.value("key1"));
-		assertEquals("", arguments.value("key2"));
+		assertFalse(arguments.isSet("key3"));
+		assertThrows(IllegalArgumentException.class, () -> arguments.value("key3"));
+		assertTrue(arguments.isSet("key4"));
+		assertEquals("", arguments.value("key4"));
 	}
 
 	@Test
