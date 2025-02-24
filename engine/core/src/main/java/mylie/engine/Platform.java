@@ -3,7 +3,6 @@ package mylie.engine;
 import mylie.engine.util.Classes;
 
 public abstract class Platform {
-	private Platform.Callback callbacks;
 	protected Platform() {
 
 	}
