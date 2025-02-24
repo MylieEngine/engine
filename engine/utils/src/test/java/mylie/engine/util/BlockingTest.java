@@ -21,13 +21,13 @@ class BlockingTest {
 	void testBlockingInterrupt() {
 		Thread thread = Thread.currentThread();
 		new Thread(() -> {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            thread.interrupt();
-        }).start();
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+			thread.interrupt();
+		}).start();
 		LinkedBlockingQueue<Object> objects = new LinkedBlockingQueue<>();
 		Assertions.assertThrows(IllegalStateException.class, () -> Blocking.poll(objects, 1, TimeUnit.SECONDS));
 	}
