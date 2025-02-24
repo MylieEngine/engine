@@ -1,8 +1,5 @@
 package mylie.engine.util;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import java.lang.reflect.Constructor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -23,17 +20,14 @@ class BlockingTest {
 	@Test
 	void testBlockingInterrupt() {
 		Thread thread = Thread.currentThread();
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-				thread.interrupt();
-			}
-		}).start();
+		new Thread(() -> {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            thread.interrupt();
+        }).start();
 		LinkedBlockingQueue<Object> objects = new LinkedBlockingQueue<>();
 		Assertions.assertThrows(IllegalStateException.class, () -> Blocking.poll(objects, 1, TimeUnit.SECONDS));
 	}
