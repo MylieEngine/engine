@@ -1,5 +1,6 @@
 package mylie.engine;
 
+import mylie.engine.util.Arguments;
 import mylie.engine.util.Classes;
 
 public abstract class Platform {
@@ -9,9 +10,13 @@ public abstract class Platform {
 
 	protected abstract void initialize(EngineConfiguration engineConfiguration);
 
-	public static EngineConfiguration initialize(Class<? extends Platform> platformClass, Platform.Callback callbacks) {
+	public static EngineConfiguration initialize(Class<? extends Platform> platformClass, Platform.Callback callbacks,
+			String... args) {
 		Platform platform = Classes.newInstance(platformClass);
 		EngineConfiguration engineConfiguration = new EngineConfiguration();
+		Arguments arguments = new Arguments();
+		arguments.fromArray(args);
+		engineConfiguration.property(EngineConfiguration.ARGUMENTS, arguments);
 		engineConfiguration.platformCallbacks(callbacks);
 		platform.initialize(engineConfiguration);
 		return engineConfiguration;
