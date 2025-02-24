@@ -5,6 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
 import lombok.Getter;
+import mylie.engine.util.Arguments;
 import mylie.engine.util.Blocking;
 import mylie.engine.util.async.*;
 
@@ -20,7 +21,26 @@ public class Engine {
 	private Engine(EngineConfiguration configuration) {
 		Thread.currentThread().setName("Engine");
 		this.engineConfiguration = configuration;
+		checkArguments();
 		initScheduler();
+	}
+
+	private void checkArguments() {
+		Arguments arguments = engineConfiguration.property(EngineConfiguration.ARGUMENTS);
+		if (arguments != null) {
+			Feature.Status status = Feature.Status.STABLE;
+			boolean allowDeprecation = false;
+			Arguments.Typed<Feature.Status> featureLevel = Arguments.Typed.ofEnum(Feature.Status.class,
+					"allowFeatures");
+			if (arguments.isSet(featureLevel)) {
+				status = arguments.value(featureLevel);
+			}
+			if (arguments.isSet("allowDeprecation")) {
+				allowDeprecation = true;
+			}
+			Feature.Level level = new Feature.Level(allowDeprecation, status);
+			engineConfiguration.property(EngineConfiguration.FEATURE_LEVEL, level);
+		}
 	}
 
 	ShutdownReason onStart() {
@@ -96,7 +116,8 @@ public class Engine {
 	}
 
 	private void initScheduler() {
-		scheduler = engineConfiguration.schedulerSettings().getInstance();
+		SchedulerSettings schedulerSettings = engineConfiguration.property(EngineConfiguration.SCHEDULER);
+		scheduler = schedulerSettings.getInstance();
 		scheduler.register(Cache.NO);
 		scheduler.register(Cache.ONE_FRAME);
 		scheduler.register(TARGET, asyncQueue::add);
