@@ -4,6 +4,7 @@ import static mylie.engine.util.async.Async.*;
 import static mylie.engine.util.async.AsyncTestSetup.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.lang.reflect.Constructor;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -17,6 +18,15 @@ class AsyncBaseTest {
 
 	private void setupScheduler(Scheduler scheduler) {
 		scheduler.register(Cache.NO);
+	}
+
+	@Test
+	void testCreateInstance() {
+		Constructor<?> declaredConstructor = Async.class.getDeclaredConstructors()[0];
+		declaredConstructor.setAccessible(true);
+		Exception e = Assertions.assertThrows(Exception.class, declaredConstructor::newInstance);
+		Assertions.assertEquals(IllegalStateException.class, e.getCause().getClass());
+		Assertions.assertEquals("Utility class", e.getCause().getMessage());
 	}
 
 	@ParameterizedTest
