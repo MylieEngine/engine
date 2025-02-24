@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Async {
 	private Async() {
+		throw new IllegalStateException("Utility class");
 	}
 	private static final Lock lock = new ReentrantLock();
 
