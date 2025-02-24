@@ -82,7 +82,10 @@ public class Engine {
 	private void executeQueueTasks(boolean blocking) {
 		if (blocking) {
 			while (shutdownReason == null || updateLoopRunning) {
-				Blocking.poll(asyncQueue, 10, TimeUnit.MILLISECONDS);
+				Runnable poll = Blocking.poll(asyncQueue, 10, TimeUnit.MILLISECONDS);
+				if (poll != null) {
+					poll.run();
+				}
 			}
 		} else {
 			Runnable task;
