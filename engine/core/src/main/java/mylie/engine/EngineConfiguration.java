@@ -23,9 +23,9 @@ public class EngineConfiguration {
 	private RestartBehavior restartBehavior = RestartBehavior.MANAGED;
 	@Setter(AccessLevel.PACKAGE)
 	private Platform.Callback platformCallbacks;
-	public static Property<SchedulerSettings> SCHEDULER = new Property<>("SCHEDULER", SchedulerSettings.forkJoin());
-	static Property<Arguments> ARGUMENTS = new Property<>("ARGUMENTS", null);
-	public static Property<Feature.Level> FEATURE_LEVEL = new Property<>("FEATURE_LEVEL",
+	public static final Property<SchedulerSettings> SCHEDULER = new Property<>("SCHEDULER", SchedulerSettings.forkJoin());
+	static final Property<Arguments> ARGUMENTS = new Property<>("ARGUMENTS", null);
+	public static final Property<Feature.Level> FEATURE_LEVEL = new Property<>("FEATURE_LEVEL",
 			new Feature.Level(false, Feature.Status.STABLE));
 
 	@Getter(AccessLevel.PACKAGE)
