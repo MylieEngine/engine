@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class Blocking {
 	private Blocking() {
+		throw new IllegalStateException("Utility class");
 	}
 	public static <T> T poll(BlockingQueue<T> queue, long timeout, TimeUnit unit) {
 		try {
