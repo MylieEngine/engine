@@ -114,4 +114,26 @@ class ArgumentsTest {
 				() -> arguments.value(key4));
 		assertEquals("Typed argument key4 is not set", illegalArgumentException.getMessage());
 	}
+
+	@Test
+	void testFromArray_null() {
+		Arguments arguments = new Arguments();
+		assertDoesNotThrow(() -> arguments.fromArray(null));
+	}
+
+	@Test
+	void testFromArray_empty() {
+		Arguments arguments = new Arguments();
+		assertDoesNotThrow(() -> arguments.fromArray(new String[0]));
+	}
+
+	@Test
+	void testFromArray_valid() {
+		Arguments arguments = new Arguments();
+		assertDoesNotThrow(() -> arguments.fromArray(new String[]{"-key1", "value1", "-key2", "value2"}));
+		assertTrue(arguments.isSet("key1"));
+		assertTrue(arguments.isSet("key2"));
+		assertEquals("value1", arguments.value("key1"));
+		assertEquals("value2", arguments.value("key2"));
+	}
 }
