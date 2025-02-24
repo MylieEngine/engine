@@ -77,7 +77,7 @@ class EngineTest {
 	@MethodSource("schedulerProvider")
 	void testEngineManagedMode(SchedulerSettings schedulerSettings) {
 		EngineConfiguration configuration = new EngineConfiguration();
-		configuration.schedulerSettings(schedulerSettings);
+		configuration.property(EngineConfiguration.SCHEDULER, schedulerSettings);
 		configuration.engineMode(EngineConfiguration.EngineMode.MANAGED);
 		AtomicInteger initCounter = new AtomicInteger(0);
 		AtomicInteger shutdownCounter = new AtomicInteger(0);
@@ -111,7 +111,7 @@ class EngineTest {
 	@MethodSource("schedulerProvider")
 	void testEngineManualMode(SchedulerSettings schedulerSettings) {
 		EngineConfiguration configuration = new EngineConfiguration();
-		configuration.schedulerSettings(schedulerSettings);
+		configuration.property(EngineConfiguration.SCHEDULER, schedulerSettings);
 		configuration.engineMode(EngineConfiguration.EngineMode.MANUAL);
 		AtomicInteger initCounter = new AtomicInteger(0);
 		AtomicInteger shutdownCounter = new AtomicInteger(0);
