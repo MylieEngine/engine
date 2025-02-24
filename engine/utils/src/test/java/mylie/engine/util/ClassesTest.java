@@ -55,6 +55,7 @@ class ClassesTest {
 	public static class MyTestObject {
 	}
 
+	@SuppressWarnings("unused")
 	public static class ClassWithoutDefaultConstructor {
 		public ClassWithoutDefaultConstructor(String arg) {
 		}
