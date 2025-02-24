@@ -65,7 +65,7 @@ public class Arguments {
 		throw new IllegalArgumentException("Typed argument " + argument.id + " is not set");
 	}
 
-	public static abstract class Typed<T> {
+	public abstract static class Typed<T> {
 		final String id;
 
 		protected Typed(String id) {
