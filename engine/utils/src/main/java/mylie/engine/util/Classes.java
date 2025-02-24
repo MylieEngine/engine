@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class Classes {
 	private Classes() {
+		throw new IllegalStateException("Utility class");
 	}
 	public static <T> T newInstance(Class<T> clazz) {
 		try {
