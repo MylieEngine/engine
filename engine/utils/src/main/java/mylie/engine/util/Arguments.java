@@ -36,6 +36,13 @@ public class Arguments {
 		}
 	}
 
+	public void fromArray(String[] arguments) {
+		if (arguments == null || arguments.length == 0) {
+			return;
+		}
+		fromString(String.join(" ", arguments));
+	}
+
 	public boolean isSet(String argument) {
 		return data.containsKey(argument);
 	}
