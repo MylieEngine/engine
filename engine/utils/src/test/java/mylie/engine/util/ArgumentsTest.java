@@ -88,7 +88,7 @@ class ArgumentsTest {
 	}
 
 	public enum Type {
-		TYPE1, TYPE2;
+		TYPE1, TYPE2
 	}
 
 	@Test
