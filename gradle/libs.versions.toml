@@ -1,5 +1,5 @@
 [versions]
-lombok = "1.18.36"
+lombok = "1.18.38"
 logback = "1.5.18"
 slf4j = "2.0.17"
 spotless = "7.0.2"
