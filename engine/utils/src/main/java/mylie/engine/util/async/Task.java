@@ -9,7 +9,6 @@ import lombok.Getter;
 @Getter(AccessLevel.PROTECTED)
 public abstract class Task<R> {
 	final String id;
-	final Scheduler scheduler;
 	final Mode mode;
 	final Target target;
 	final Cache cache;
@@ -17,9 +16,8 @@ public abstract class Task<R> {
 	@Getter
 	final CopyOnWriteArrayList<Task<?>> dependencies;
 
-	protected Task(String id, Scheduler scheduler, Mode mode, Target target, Cache cache) {
+	protected Task(String id, Mode mode, Target target, Cache cache) {
 		this.id = id;
-		this.scheduler = scheduler;
 		this.mode = mode;
 		this.target = target;
 		this.cache = cache;
