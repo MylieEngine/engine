@@ -14,8 +14,8 @@ public class Async {
 	}
 	private static final Lock lock = new ReentrantLock();
 
-	public static <T extends Collection<Result<R>>, R> void await(T results) {
-		for (Result<R> result : results) {
+	public static <T extends Collection<Result<?>>> void await(T results) {
+		for (Result<?> result : results) {
 			result.result();
 		}
 	}
