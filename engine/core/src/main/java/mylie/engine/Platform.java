@@ -1,5 +1,6 @@
 package mylie.engine;
 
+import mylie.engine.components.ComponentManager;
 import mylie.engine.util.Arguments;
 import mylie.engine.util.Classes;
 
@@ -27,7 +28,7 @@ public abstract class Platform {
 	}
 
 	public interface Callback {
-		void onInitialize();
+		void onInitialize(ComponentManager componentManager);
 		void onUpdate();
 		void onShutdown();
 	}
