@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class AsyncTaskTest {
+class AsyncTaskTest {
 	private void setupScheduler(Scheduler scheduler) {
 		scheduler.register(Cache.ONE_FRAME);
 	}

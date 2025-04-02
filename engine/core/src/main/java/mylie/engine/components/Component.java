@@ -35,7 +35,7 @@ public class Component {
 		log.trace("Component<{}> added", this.getClass().getSimpleName());
 	}
 
-	Result<?> update() {
+	Result<Boolean> update() {
 		return updateTask.execute();
 	}
 
@@ -78,7 +78,7 @@ public class Component {
 
 		@Override
 		protected Result<Boolean> onExecute() {
-			return Async.async(scheduler, mode(), target(), cache(), 0, UPDATE_FUNCTION, component);
+			return Async.async(scheduler, super.mode(), super.target(), super.cache(), 0, UPDATE_FUNCTION, component);
 		}
 	}
 

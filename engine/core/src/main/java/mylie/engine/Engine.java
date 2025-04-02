@@ -84,10 +84,8 @@ public class Engine {
 		shutdownReason = shutdownNextFrame;
 		scheduler.progress();
 		componentManager.update();
-		if (engineConfiguration.platformCallbacks() != null) {
-			if (shutdownReason == null) {
-				engineConfiguration.platformCallbacks().onUpdate();
-			}
+		if (engineConfiguration.platformCallbacks() != null && shutdownReason == null) {
+			engineConfiguration.platformCallbacks().onUpdate();
 		}
 	}
 

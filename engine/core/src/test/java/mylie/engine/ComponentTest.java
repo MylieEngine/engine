@@ -8,7 +8,7 @@ import mylie.engine.components.ComponentManager;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class ComponentTest {
+class ComponentTest {
 	static Stream<SchedulerSettings> schedulerProvider() {
 		return Stream.of(SchedulerSettings.singleThreaded(), SchedulerSettings.forkJoin());
 	}
@@ -37,7 +37,7 @@ public class ComponentTest {
 
 			@Override
 			public void onShutdown() {
-
+				// nothing to do here
 			}
 		});
 		Engine.start(configuration);
