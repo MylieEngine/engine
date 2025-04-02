@@ -69,7 +69,11 @@ public class Component {
 		protected UpdateTask(Component component, Mode mode, Target target, Cache cache) {
 			super("UpdateTask<" + component.getClass().getSimpleName() + ">", mode, target, cache);
 			this.component = component;
-			this.scheduler = component.componentManager().engine().scheduler();
+			if (component.componentManager().engine() != null) {
+				this.scheduler = component.componentManager().engine().scheduler();
+			} else {
+				this.scheduler = null;
+			}
 		}
 
 		@Override

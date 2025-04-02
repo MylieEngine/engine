@@ -12,6 +12,7 @@ import mylie.engine.util.async.Result;
 public class ComponentManager {
 	@Getter(AccessLevel.PACKAGE)
 	private final Engine engine;
+	@Getter(AccessLevel.PACKAGE)
 	private final List<Component> components;
 
 	public ComponentManager(Engine engine) {
