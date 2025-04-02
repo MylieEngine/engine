@@ -13,5 +13,8 @@ class TestDesktopLauncher {
 		engineConfiguration.engineMode(EngineConfiguration.EngineMode.MANUAL);
 		Engine.ShutdownReason start = Engine.start(engineConfiguration);
 		Assertions.assertNull(start);
+		Engine.shutdown("Ok");
+		Engine.ShutdownReason result = Engine.update();
+		Assertions.assertNotNull(result);
 	}
 }
