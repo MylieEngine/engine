@@ -44,7 +44,7 @@ public class ComponentTest {
 		assertEquals(10, component.update);
 	}
 
-	class TestComponent extends Component {
+	static class TestComponent extends Component {
 		boolean add = false;
 		boolean init = false;
 		boolean enable = false;
