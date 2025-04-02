@@ -22,7 +22,7 @@ class AsyncCacheTest {
 	void testNoOpCache(Scheduler scheduler) {
 		setupScheduler(scheduler);
 		AtomicInteger atomicInteger = new AtomicInteger(0);
-		List<Result<Boolean>> results = new LinkedList<>();
+		List<Result<?>> results = new LinkedList<>();
 		results.add(
 				async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.NO, 0, ATOMIC_INTEGER_INCREASE, atomicInteger));
 		results.add(
@@ -39,7 +39,7 @@ class AsyncCacheTest {
 	void testOneFrameCache(Scheduler scheduler) {
 		setupScheduler(scheduler);
 		AtomicInteger atomicInteger = new AtomicInteger(0);
-		List<Result<Boolean>> results = new LinkedList<>();
+		List<Result<?>> results = new LinkedList<>();
 		results.add(async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.ONE_FRAME, 0, ATOMIC_INTEGER_INCREASE,
 				atomicInteger));
 		results.add(async(scheduler, Mode.ASYNC, Target.BACKGROUND, Cache.ONE_FRAME, 1, ATOMIC_INTEGER_INCREASE,

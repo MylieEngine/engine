@@ -109,7 +109,7 @@ class AsyncBaseTest {
 		String threadName = "TestThread";
 		Thread.currentThread().setName(threadName);
 		List<String> threadNames = new LinkedList<>();
-		List<Result<Boolean>> results = new LinkedList<>();
+		List<Result<?>> results = new LinkedList<>();
 		results.add(async(scheduler, Mode.DIRECT, Target.BACKGROUND, Cache.NO, 0, AsyncTestSetup.WRITE_THREAD_NAME,
 				threadNames));
 		results.add(async(scheduler, Mode.DIRECT, Target.BACKGROUND, Cache.NO, 0, AsyncTestSetup.WRITE_THREAD_NAME,
