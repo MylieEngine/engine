@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+import mylie.engine.components.ComponentManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -84,7 +85,7 @@ class EngineTest {
 		AtomicInteger updateCounter = new AtomicInteger(0);
 		configuration.platformCallbacks(new Platform.Callback() {
 			@Override
-			public void onInitialize() {
+			public void onInitialize(ComponentManager componentManager) {
 				initCounter.incrementAndGet();
 			}
 
@@ -118,7 +119,7 @@ class EngineTest {
 		AtomicInteger updateCounter = new AtomicInteger(0);
 		configuration.platformCallbacks(new Platform.Callback() {
 			@Override
-			public void onInitialize() {
+			public void onInitialize(ComponentManager componentManager) {
 				initCounter.incrementAndGet();
 			}
 

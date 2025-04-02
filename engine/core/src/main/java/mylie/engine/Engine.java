@@ -5,6 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
 import lombok.Getter;
+import mylie.engine.components.ComponentManager;
 import mylie.engine.util.Arguments;
 import mylie.engine.util.Blocking;
 import mylie.engine.util.async.*;
@@ -13,16 +14,21 @@ import mylie.engine.util.async.*;
 public class Engine {
 	public static final Target TARGET = new Target("Engine");
 	private static Engine engine;
+	@Getter
 	private ShutdownReason shutdownReason;
+	private ShutdownReason shutdownNextFrame;
 	private final EngineConfiguration engineConfiguration;
 	private final BlockingQueue<Runnable> asyncQueue = new LinkedBlockingQueue<>();
+	@Getter
 	private Scheduler scheduler;
+	private final ComponentManager componentManager;
 	private boolean updateLoopRunning = false;
 	private Engine(EngineConfiguration configuration) {
 		Thread.currentThread().setName("Engine");
 		this.engineConfiguration = configuration;
 		checkArguments();
 		initScheduler();
+		componentManager = new ComponentManager(this);
 	}
 
 	private void checkArguments() {
@@ -45,7 +51,7 @@ public class Engine {
 
 	ShutdownReason onStart() {
 		if (engineConfiguration.platformCallbacks() != null) {
-			engineConfiguration.platformCallbacks().onInitialize();
+			engineConfiguration.platformCallbacks().onInitialize(componentManager);
 		}
 		if (engineConfiguration.engineMode() == EngineConfiguration.EngineMode.MANAGED) {
 			if (scheduler instanceof SingleThreadedScheduler) {
@@ -61,6 +67,7 @@ public class Engine {
 	}
 
 	ShutdownReason onUpdate() {
+		scheduler.progress();
 		executeQueueTasks(false);
 		runUpdateLoop();
 		if (shutdownReason != null && engineConfiguration.platformCallbacks() != null) {
@@ -70,12 +77,17 @@ public class Engine {
 	}
 
 	void onShutdown(ShutdownReason reason) {
-		shutdownReason = reason;
+		shutdownNextFrame = reason;
 	}
 
 	private void runUpdateLoop() {
-		if (shutdownReason == null && engineConfiguration.platformCallbacks() != null) {
-			engineConfiguration.platformCallbacks().onUpdate();
+		shutdownReason = shutdownNextFrame;
+		scheduler.progress();
+		componentManager.update();
+		if (engineConfiguration.platformCallbacks() != null) {
+			if (shutdownReason == null) {
+				engineConfiguration.platformCallbacks().onUpdate();
+			}
 		}
 	}
 
