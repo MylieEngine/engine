@@ -64,18 +64,11 @@ public abstract class Cache {
 		}
 	}
 
-	static final class InvalidateEachStep extends Cache {
-		private final Map<Hash, Result<?>> data = new HashMap<>();
-		@Override
-		void progress() {
-			Cache parentCache = parent();
-			if (parentCache != null) {
-				for (Hash hash : data.keySet()) {
-					parentCache.remove(hash);
-				}
-			}
-			data.clear();
-		}
+	/**
+	 * Helper base class for caches that store data.
+	 */
+	static abstract class AbstractDataCache extends Cache {
+		protected final Map<Hash, Result<?>> data = new HashMap<>();
 
 		@Override
 		void clear() {
@@ -85,55 +78,6 @@ public abstract class Cache {
 		@Override
 		void remove(Hash hash) {
 			data.remove(hash);
-		}
-
-		@Override
-		<R> void result(Result<R> result) {
-			data.put(result.hash(), result);
-			if (parent() != null) {
-				parent().result(result);
-			}
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		<R> Result<R> result(Hash hash, long version) {
-			Result<R> result = (Result<R>) data.get(hash);
-			if (result == null && parent() != null) {
-				result = parent().result(hash, version);
-			}
-			return result;
-		}
-
-		@Override
-		Cache createInstance() {
-			return new InvalidateEachStep();
-		}
-	}
-
-	static final class DoNotInvalidate extends Cache {
-		private final Map<Hash, Result<?>> data = new HashMap<>();
-		@Override
-		void progress() {
-			// Nothing to do on progress
-		}
-
-		@Override
-		void clear() {
-			data.clear();
-		}
-
-		@Override
-		void remove(Hash hash) {
-			data.remove(hash);
-		}
-
-		@Override
-		<R> void result(Result<R> result) {
-			data.put(result.hash(), result);
-			if (parent() != null) {
-				parent().result(result);
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -144,6 +88,39 @@ public abstract class Cache {
 				return parent().result(hash, version);
 			}
 			return result;
+		}
+
+		@Override
+		<R> void result(Result<R> result) {
+			data.put(result.hash(), result);
+			if (parent() != null) {
+				parent().result(result);
+			}
+		}
+	}
+
+	static final class InvalidateEachStep extends AbstractDataCache {
+		@Override
+		void progress() {
+			Cache parentCache = parent();
+			if (parentCache != null) {
+				for (Hash hash : data.keySet()) {
+					parentCache.remove(hash);
+				}
+			}
+			clear();
+		}
+
+		@Override
+		Cache createInstance() {
+			return new InvalidateEachStep();
+		}
+	}
+
+	static final class DoNotInvalidate extends AbstractDataCache {
+		@Override
+		void progress() {
+			// Nothing to do on progress
 		}
 
 		@Override
