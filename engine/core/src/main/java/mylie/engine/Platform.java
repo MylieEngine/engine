@@ -23,8 +23,8 @@ public abstract class Platform {
 		return engineConfiguration;
 	}
 
-	public static EngineConfiguration initialize(Class<? extends Platform> platformClass) {
-		return initialize(platformClass, null);
+	public static EngineConfiguration initialize(Class<? extends Platform> platformClass, String... args) {
+		return initialize(platformClass, null, args);
 	}
 
 	public interface Callback {
