@@ -24,11 +24,11 @@ public final class Core extends Component {
 
 	private Scheduler initScheduler() {
 		SchedulerSettings schedulerSettings = engineConfiguration.property(EngineConfiguration.SCHEDULER);
-		Scheduler scheduler = schedulerSettings.getInstance();
-		scheduler.register(Cache.NO);
-		scheduler.register(Cache.ONE_FRAME);
-		scheduler.register(Cache.FOREVER);
-		return scheduler;
+		Scheduler engineScheduler = schedulerSettings.getInstance();
+		engineScheduler.register(Cache.NO);
+		engineScheduler.register(Cache.ONE_FRAME);
+		engineScheduler.register(Cache.FOREVER);
+		return engineScheduler;
 	}
 
 	@Override
