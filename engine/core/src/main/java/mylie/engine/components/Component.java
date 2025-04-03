@@ -3,13 +3,17 @@ package mylie.engine.components;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import mylie.engine.Core;
 import mylie.engine.util.async.*;
 
 @Slf4j
 public class Component {
 	@Getter(AccessLevel.PROTECTED)
 	private ComponentManager componentManager;
+	private Core core;
+	@Accessors(chain = false)
 	@Setter
 	private boolean enabled = false;
 	private boolean isEnabled = false;
@@ -31,6 +35,7 @@ public class Component {
 
 	protected void onAdd(ComponentManager componentManager) {
 		this.componentManager = componentManager;
+		this.core = componentManager.component(Core.class);
 		this.updateTask = new UpdateTask(this, mode, target, cache);
 		log.trace("Component<{}> added", this.getClass().getSimpleName());
 	}
@@ -69,8 +74,8 @@ public class Component {
 		protected UpdateTask(Component component, Mode mode, Target target, Cache cache) {
 			super("UpdateTask<" + component.getClass().getSimpleName() + ">", mode, target, cache);
 			this.component = component;
-			if (component.componentManager().engine() != null) {
-				this.scheduler = component.componentManager().engine().scheduler();
+			if (component.core != null) {
+				this.scheduler = component.core.scheduler();
 			} else {
 				this.scheduler = null;
 			}
@@ -85,7 +90,7 @@ public class Component {
 	private static final Functions.One<Component, Boolean> UPDATE_FUNCTION = new Functions.One<>("COMPONENT UPDATE") {
 		@Override
 		protected Boolean execute(Component component) {
-			if (component.componentManager().engine().shutdownReason() == null) {
+			if (component.core.running()) {
 				// update
 				if (!component.initialized) {
 					component.initialized = true;

@@ -14,21 +14,22 @@ import mylie.engine.util.async.*;
 public class Engine {
 	public static final Target TARGET = new Target("Engine");
 	private static Engine engine;
+	private final Core core;
 	@Getter
 	private ShutdownReason shutdownReason;
 	private ShutdownReason shutdownNextFrame;
 	private final EngineConfiguration engineConfiguration;
 	private final BlockingQueue<Runnable> asyncQueue = new LinkedBlockingQueue<>();
-	@Getter
-	private Scheduler scheduler;
 	private final ComponentManager componentManager;
 	private boolean updateLoopRunning = false;
 	private Engine(EngineConfiguration configuration) {
 		Thread.currentThread().setName("Engine");
 		this.engineConfiguration = configuration;
 		checkArguments();
-		initScheduler();
-		componentManager = new ComponentManager(this);
+		componentManager = new ComponentManager();
+		core = new Core(engineConfiguration);
+		core.scheduler().register(TARGET, asyncQueue::add);
+		componentManager.addComponent(core);
 	}
 
 	private void checkArguments() {
@@ -54,26 +55,31 @@ public class Engine {
 			engineConfiguration.platformCallbacks().onInitialize(componentManager);
 		}
 		if (engineConfiguration.engineMode() == EngineConfiguration.EngineMode.MANAGED) {
-			if (scheduler instanceof SingleThreadedScheduler) {
+			if (core.scheduler() instanceof SingleThreadedScheduler) {
 				runSingleThreaded();
 			} else {
 				runMultiThreaded();
 			}
-			if (engineConfiguration.platformCallbacks() != null) {
-				engineConfiguration.platformCallbacks().onShutdown();
-			}
+			shutdownProcedure();
 		}
 		return shutdownReason;
 	}
 
 	ShutdownReason onUpdate() {
-		scheduler.progress();
+		core.scheduler().progress();
 		executeQueueTasks(false);
 		runUpdateLoop();
-		if (shutdownReason != null && engineConfiguration.platformCallbacks() != null) {
-			engineConfiguration.platformCallbacks().onShutdown();
+		if (shutdownReason != null) {
+			shutdownProcedure();
 		}
 		return shutdownReason;
+	}
+
+	private void shutdownProcedure() {
+		componentManager().shutdown();
+		if (engineConfiguration.platformCallbacks() != null) {
+			engineConfiguration.platformCallbacks().onShutdown();
+		}
 	}
 
 	void onShutdown(ShutdownReason reason) {
@@ -82,7 +88,10 @@ public class Engine {
 
 	private void runUpdateLoop() {
 		shutdownReason = shutdownNextFrame;
-		scheduler.progress();
+		if (shutdownReason != null) {
+			core.running(false);
+		}
+		core.scheduler().progress();
 		componentManager.update();
 		if (engineConfiguration.platformCallbacks() != null && shutdownReason == null) {
 			engineConfiguration.platformCallbacks().onUpdate();
@@ -123,14 +132,6 @@ public class Engine {
 				task.run();
 			}
 		}
-	}
-
-	private void initScheduler() {
-		SchedulerSettings schedulerSettings = engineConfiguration.property(EngineConfiguration.SCHEDULER);
-		scheduler = schedulerSettings.getInstance();
-		scheduler.register(Cache.NO);
-		scheduler.register(Cache.ONE_FRAME);
-		scheduler.register(TARGET, asyncQueue::add);
 	}
 
 	public static ShutdownReason start(EngineConfiguration config) {

@@ -7,7 +7,7 @@ class ComponentManagerTest {
 
 	@Test
 	void testAddComponent() {
-		ComponentManager componentManager = new ComponentManager(null);
+		ComponentManager componentManager = new ComponentManager();
 		componentManager.addComponent(new TestComponent());
 		componentManager.addComponent(new TestComponent2());
 		Assertions.assertEquals(2, componentManager.components().size());
@@ -15,7 +15,7 @@ class ComponentManagerTest {
 
 	@Test
 	void testRemoveComponent() {
-		ComponentManager componentManager = new ComponentManager(null);
+		ComponentManager componentManager = new ComponentManager();
 		componentManager.addComponent(new TestComponent());
 		componentManager.addComponent(new TestComponent2());
 		Assertions.assertEquals(2, componentManager.components().size());
@@ -25,7 +25,7 @@ class ComponentManagerTest {
 
 	@Test
 	void testRemoveMany() {
-		ComponentManager componentManager = new ComponentManager(null);
+		ComponentManager componentManager = new ComponentManager();
 		componentManager.addComponent(new TestComponent());
 		componentManager.addComponent(new TestComponent());
 		componentManager.addComponent(new TestComponent2());
@@ -36,14 +36,14 @@ class ComponentManagerTest {
 
 	@Test
 	void testAddMany() {
-		ComponentManager componentManager = new ComponentManager(null);
+		ComponentManager componentManager = new ComponentManager();
 		componentManager.addComponents(new TestComponent(), new TestComponent());
 		Assertions.assertEquals(2, componentManager.components().size());
 	}
 
 	@Test
 	void testGetComponent() {
-		ComponentManager componentManager = new ComponentManager(null);
+		ComponentManager componentManager = new ComponentManager();
 		TestComponent testComponent = new TestComponent();
 		TestComponent2 testComponent2 = new TestComponent2();
 		componentManager.addComponents(testComponent2, testComponent);

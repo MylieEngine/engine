@@ -5,18 +5,13 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.AccessLevel;
 import lombok.Getter;
-import mylie.engine.Engine;
 import mylie.engine.util.async.Async;
 import mylie.engine.util.async.Result;
 
 public class ComponentManager {
 	@Getter(AccessLevel.PACKAGE)
-	private final Engine engine;
-	@Getter(AccessLevel.PACKAGE)
 	private final List<Component> components;
-
-	public ComponentManager(Engine engine) {
-		this.engine = engine;
+	public ComponentManager() {
 		this.components = new CopyOnWriteArrayList<>();
 	}
 
@@ -59,10 +54,10 @@ public class ComponentManager {
 			results.add(component.update());
 		}
 		Async.await(results);
-		if (engine.shutdownReason() != null) {
-			components.forEach(Component::onRemoval);
-			components.clear();
-		}
+	}
 
+	public void shutdown() {
+		components.forEach(Component::onRemoval);
+		components.clear();
 	}
 }
