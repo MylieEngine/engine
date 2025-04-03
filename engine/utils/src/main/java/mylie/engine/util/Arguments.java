@@ -86,8 +86,7 @@ public class Arguments {
 				@Override
 				protected T parse(String value) {
 					try {
-						T t = Enum.valueOf(enumClass, value);
-						return t;
+						return Enum.valueOf(enumClass, value);
 					} catch (Exception e) {
 						log.error("Failed to parse enum value {}", value, e);
 						throw e;
