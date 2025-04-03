@@ -10,6 +10,7 @@ import lombok.Setter;
 public abstract class Cache {
 	public static final Cache NO = new NullCache();
 	public static final Cache ONE_FRAME = new InvalidateEachStep();
+	public static final Cache FOREVER = new DoNotInvalidate();
 	@Setter(AccessLevel.PACKAGE)
 	@Getter(AccessLevel.PROTECTED)
 	private Cache parent;
@@ -107,6 +108,47 @@ public abstract class Cache {
 		@Override
 		Cache createInstance() {
 			return new InvalidateEachStep();
+		}
+	}
+
+	static final class DoNotInvalidate extends Cache {
+		private final Map<Hash, Result<?>> data = new HashMap<>();
+		@Override
+		void progress() {
+
+		}
+
+		@Override
+		void clear() {
+			data.clear();
+		}
+
+		@Override
+		void remove(Hash hash) {
+			data.remove(hash);
+		}
+
+		@Override
+		<R> void result(Result<R> result) {
+			data.put(result.hash(), result);
+			if (parent() != null) {
+				parent().result(result);
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		<R> Result<R> result(Hash hash, long version) {
+			Result<R> result = (Result<R>) data.get(hash);
+			if (result == null && parent() != null) {
+				return parent().result(hash, version);
+			}
+			return result;
+		}
+
+		@Override
+		Cache createInstance() {
+			return new DoNotInvalidate();
 		}
 	}
 }
