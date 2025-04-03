@@ -85,7 +85,13 @@ public class Arguments {
 			return new Typed<>(id) {
 				@Override
 				protected T parse(String value) {
-					return Enum.valueOf(enumClass, value);
+					try {
+						T t = Enum.valueOf(enumClass, value);
+						return t;
+					} catch (Exception e) {
+						log.error("Failed to parse enum value {}", value, e);
+						throw e;
+					}
 				}
 			};
 		}
