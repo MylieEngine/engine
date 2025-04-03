@@ -3,12 +3,12 @@ package mylie.engine;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.stream.Stream;
-import mylie.engine.components.Component;
+import mylie.engine.components.BaseComponent;
 import mylie.engine.components.ComponentManager;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class ComponentTest {
+class BaseComponentTest {
 	static Stream<SchedulerSettings> schedulerProvider() {
 		return Stream.of(SchedulerSettings.singleThreaded(), SchedulerSettings.forkJoin());
 	}
@@ -19,7 +19,7 @@ class ComponentTest {
 		EngineConfiguration configuration = new EngineConfiguration();
 		configuration.property(EngineConfiguration.SCHEDULER, schedulerSettings);
 		configuration.engineMode(EngineConfiguration.EngineMode.MANAGED);
-		TestComponent component = new TestComponent();
+		TestBaseComponent component = new TestBaseComponent();
 		configuration.platformCallbacks(new Platform.Callback() {
 			int counter = 0;
 			@Override
@@ -44,13 +44,13 @@ class ComponentTest {
 		assertEquals(10, component.update);
 	}
 
-	static class TestComponent extends Component {
+	static class TestBaseComponent extends BaseComponent {
 		boolean add = false;
 		boolean init = false;
 		boolean enable = false;
 		int update = 0;
 
-		public TestComponent() {
+		public TestBaseComponent() {
 			enabled(true);
 		}
 

@@ -3,13 +3,13 @@ package mylie.engine;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import mylie.engine.components.Component;
+import mylie.engine.components.BaseComponent;
 import mylie.engine.util.async.Cache;
 import mylie.engine.util.async.Mode;
 import mylie.engine.util.async.Scheduler;
 import mylie.engine.util.async.Target;
 
-public final class Core extends Component {
+public final class Core extends BaseComponent {
 	private final EngineConfiguration engineConfiguration;
 	@Getter(AccessLevel.PUBLIC)
 	private final Scheduler scheduler;

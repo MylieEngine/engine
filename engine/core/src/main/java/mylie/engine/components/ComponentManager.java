@@ -17,18 +17,22 @@ public class ComponentManager {
 
 	public void addComponent(Component component) {
 		components.add(component);
-		component.onAdd(this);
+		if (component instanceof BaseComponent baseComponent) {
+			baseComponent.onAdd(this);
+		}
 	}
 
-	public void addComponents(Component... components) {
-		for (Component component : components) {
-			addComponent(component);
+	public void addComponents(Component... baseComponents) {
+		for (Component baseComponent : baseComponents) {
+			addComponent(baseComponent);
 		}
 	}
 
 	public void removeComponent(Component component) {
 		components.remove(component);
-		component.onRemoval();
+		if (component instanceof BaseComponent baseComponent) {
+			baseComponent.onRemoval();
+		}
 	}
 
 	public void removeComponent(Class<? extends Component> componentClass) {
@@ -51,13 +55,19 @@ public class ComponentManager {
 	public void update() {
 		List<Result<?>> results = new ArrayList<>(components.size());
 		for (Component component : components) {
-			results.add(component.update());
+			if (component instanceof BaseComponent baseComponent) {
+				results.add(baseComponent.update());
+			}
 		}
 		Async.await(results);
 	}
 
 	public void shutdown() {
-		components.forEach(Component::onRemoval);
+		for (Component component : components) {
+			if (component instanceof BaseComponent baseComponent) {
+				baseComponent.onRemoval();
+			}
+		}
 		components.clear();
 	}
 }
