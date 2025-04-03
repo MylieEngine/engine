@@ -1,10 +1,9 @@
-package mylie.engine;
+package mylie.engine.components;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.stream.Stream;
-import mylie.engine.components.BaseComponent;
-import mylie.engine.components.ComponentManager;
+import mylie.engine.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -16,12 +15,10 @@ class BaseComponentTest {
 	@ParameterizedTest
 	@MethodSource("schedulerProvider")
 	void testComponents(SchedulerSettings schedulerSettings) {
-		EngineConfiguration configuration = new EngineConfiguration();
-		configuration.property(EngineConfiguration.SCHEDULER, schedulerSettings);
-		configuration.engineMode(EngineConfiguration.EngineMode.MANAGED);
 		TestBaseComponent component = new TestBaseComponent();
-		configuration.platformCallbacks(new Platform.Callback() {
+		Platform.Callback callbacks = new Platform.Callback() {
 			int counter = 0;
+
 			@Override
 			public void onInitialize(ComponentManager componentManager) {
 				componentManager.addComponent(component);
@@ -39,7 +36,11 @@ class BaseComponentTest {
 			public void onShutdown() {
 				// nothing to do here
 			}
-		});
+		};
+		EngineConfiguration configuration = Platform.initialize(TestPlatform.class, callbacks);
+		configuration.property(EngineConfiguration.SCHEDULER, schedulerSettings);
+		configuration.engineMode(EngineConfiguration.EngineMode.MANAGED);
+
 		Engine.start(configuration);
 		assertEquals(10, component.update);
 	}

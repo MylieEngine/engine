@@ -12,6 +12,9 @@ import mylie.engine.util.VersionedValue;
 @Setter
 @Getter(AccessLevel.PACKAGE)
 public class EngineConfiguration {
+	EngineConfiguration() {
+		// must be created in platform
+	}
 	private final Map<Property<?>, VersionedValue<?>> properties = new HashMap<>();
 	public enum EngineMode {
 		MANAGED, MANUAL
