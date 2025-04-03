@@ -12,7 +12,7 @@ public final class Blocking {
 		try {
 			return queue.poll(timeout, unit);
 		} catch (InterruptedException e) {
-			log.error("Interrupted while polling queue", e);
+			log.warn("Interrupted while polling queue", e);
 			throw new IllegalStateException("Interrupted while polling queue", e);
 		}
 	}

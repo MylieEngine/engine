@@ -13,7 +13,7 @@ public final class Classes {
 			return clazz.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException | IllegalAccessException | InvocationTargetException
 				| NoSuchMethodException e) {
-			log.error("Failed to instantiate class: {}", clazz.getName(), e);
+			log.warn("Failed to instantiate class: {}", clazz.getName(), e);
 			throw new IllegalStateException("Failed to instantiate class: " + clazz.getName(), e);
 		}
 	}

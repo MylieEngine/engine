@@ -64,7 +64,7 @@ public class Arguments {
 			try {
 				return argument.parse(value(argument.id));
 			} catch (Exception e) {
-				log.error("Failed to parse typed argument {}", argument.id, e);
+				log.warn("Failed to parse typed argument {}", argument.id, e);
 				throw new IllegalStateException("Failed to parse typed argument " + argument.id, e);
 			}
 		}
@@ -88,7 +88,7 @@ public class Arguments {
 					try {
 						return Enum.valueOf(enumClass, value);
 					} catch (Exception e) {
-						log.error("Failed to parse enum value {}", value, e);
+						log.warn("Failed to parse enum value {}", value, e);
 						throw e;
 					}
 				}
