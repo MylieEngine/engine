@@ -66,6 +66,9 @@ public class Component {
 
 	protected void onRemoval() {
 		log.trace("Component<{}> removed", this.getClass().getSimpleName());
+		this.componentManager = null;
+		this.core = null;
+		this.updateTask = null;
 	}
 
 	private static class UpdateTask extends Task<Boolean> {
