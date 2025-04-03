@@ -67,7 +67,7 @@ public abstract class Cache {
 	/**
 	 * Helper base class for caches that store data.
 	 */
-	static abstract class AbstractDataCache extends Cache {
+	abstract static class AbstractDataCache extends Cache {
 		protected final Map<Hash, Result<?>> data = new HashMap<>();
 
 		@Override
@@ -108,7 +108,7 @@ public abstract class Cache {
 					parentCache.remove(hash);
 				}
 			}
-			clear();
+			super.clear();
 		}
 
 		@Override
