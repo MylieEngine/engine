@@ -115,7 +115,7 @@ public abstract class Cache {
 		private final Map<Hash, Result<?>> data = new HashMap<>();
 		@Override
 		void progress() {
-
+			// Nothing to do on progress
 		}
 
 		@Override
