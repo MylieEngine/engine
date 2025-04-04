@@ -5,7 +5,7 @@ slf4j = "2.0.17"
 spotless = "7.0.2"
 sonarqube= "6.1.0.5360"
 palantirGitVersion="3.2.0"
-mockito="5.16.1"
+mockito="5.17.0"
 junit="5.12.1"
 junit-platform = "1.12.1"
 
